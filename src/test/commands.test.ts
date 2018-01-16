@@ -74,6 +74,22 @@ describe("Commands", function () {
     afterEach(function () {
         helpers.clear();
     })
+    describe.only("register()", function () {
+        let mockSubject: TypeMoq.IMock<commands.Commands>;
+        beforeEach(function () {
+            mockSubject = TypeMoq.Mock.ofInstance(subject);
+            subject = mockSubject.target;
+        })
+        it("registers all commands and its callbacks", function () {
+            let selectPackageCallback;
+            mockWrapper.setup(x => x.registerAndSubscribeCommand('rock.selectPackage',
+                TypeMoq.It.isAny())).callback((command, callback) => { selectPackageCallback = callback });
+
+            mockSubject.setup(x => x.selectPackage()).returns(() => { console.log("invoked"); return Promise.resolve(undefined); });
+            subject.register();
+            selectPackageCallback();
+        })
+    })
     describe("selectPackage", function () {
         it("shows a quick picker with all packages", async function () {
             let expectedChoices = new Array<{
